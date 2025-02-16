@@ -1,4 +1,5 @@
 using Sirenix.OdinInspector;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Schema;
@@ -106,5 +107,20 @@ public class GridManager : Singleton<GridManager>
                 list.Add(Get(pos));
         }
         return list;
+    }
+
+    public List<Tile> GetTilesInLine(Vector2Int startingTile, Vector2Int direction, int range, Func<Tile, bool> stopWhenFalse = null)
+    {
+        List<Tile> tilesInLine = new List<Tile>();
+        for (int i = 0; i <= range; i++)
+        {
+            var tile = Get(startingTile + direction * i);
+            
+            if (stopWhenFalse != null && stopWhenFalse(tile) == false)
+                break;
+
+            tilesInLine.Add(tile);
+        }
+        return tilesInLine;
     }
 }

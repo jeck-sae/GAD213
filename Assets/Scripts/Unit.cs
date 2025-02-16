@@ -24,7 +24,7 @@ public class Unit : MonoBehaviour
     }
 
     public List<Tile> GetWalkableTiles() => GetWalkableTiles(currentTile);
-    public List<Tile> GetWalkableTiles(Tile center)
+    public virtual List<Tile> GetWalkableTiles(Tile center)
     {
         var tiles = Pathfinder.GetReachableTiles(GridManager.Instance, center, movementRange);
         //var tiles = GridManager.Instance.GetTilesInRange(center.position, movementRange);
@@ -32,7 +32,7 @@ public class Unit : MonoBehaviour
         return tiles.Where(x => x.unit == null).ToList();
     }
     public List<Tile> GetAttackableTiles() => GetAttackableTiles(currentTile);
-    public List<Tile> GetAttackableTiles(Tile center)
+    public virtual List<Tile> GetAttackableTiles(Tile center)
     {
         var tiles = GridManager.Instance.GetTilesInCross(center.position, attackRange);
         tiles.Remove(center);
