@@ -45,14 +45,14 @@ public class UnitManager : Singleton<UnitManager>
             }
 
             //Select unit
-            if (tile.unit && !tile.unit.isEnemy)
+            if (tile && tile.unit && !tile.unit.isEnemy)
             {
                 SelectedUnit = tile.unit;
                 return;
             }
 
             //Attack
-            if(tile.unit && SelectedUnit && SelectedUnit.GetAttackableTiles().Contains(tile))
+            if(tile && tile.unit && SelectedUnit && SelectedUnit.GetAttackableTiles().Contains(tile))
             {
                 Destroy(tile.unit.gameObject);
                 return;

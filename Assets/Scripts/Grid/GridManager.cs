@@ -112,7 +112,7 @@ public class GridManager : Singleton<GridManager>
     public List<Tile> GetTilesInLine(Vector2Int startingTile, Vector2Int direction, int range, Func<Tile, bool> stopWhenFalse = null)
     {
         List<Tile> tilesInLine = new List<Tile>();
-        for (int i = 0; i <= range; i++)
+        for (int i = 0; i < range; i++)
         {
             var tile = Get(startingTile + direction * i);
             
