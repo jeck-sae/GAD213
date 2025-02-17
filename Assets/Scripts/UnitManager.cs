@@ -38,7 +38,7 @@ public class UnitManager : Singleton<UnitManager>
             }
 
             //Deselect unit
-            if (SelectedUnit == tile.unit)
+            if (SelectedUnit == tile?.unit)
             {
                 SelectedUnit = null;
                 return;
@@ -55,6 +55,11 @@ public class UnitManager : Singleton<UnitManager>
             if(tile && tile.unit && SelectedUnit && SelectedUnit.GetAttackableTiles().Contains(tile))
             {
                 Destroy(tile.unit.gameObject);
+                
+                MoveRelativeToCursor.SetTileOffsetMultiplier(5, 0.1f);
+                CustomCoroutine.WaitThenExecute(0.15f, () => MoveRelativeToCursor.SetTileOffsetMultiplier(0, 0.1f));
+                CustomCoroutine.WaitThenExecute(0.25f, () => MoveRelativeToCursor.SetTileOffsetMultiplier(1, 0.1f));
+                
                 return;
             }
 

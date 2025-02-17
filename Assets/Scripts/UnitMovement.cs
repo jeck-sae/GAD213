@@ -19,7 +19,9 @@ public class UnitMovement : Singleton<UnitMovement>
     IEnumerator MoveUnitCoroutine(Unit unit, Tile destination)
     {
         isMoving = true;
-        
+
+        MoveRelativeToCursor.SetTileOffsetMultiplier(.8f, 0.2f);
+
         var path = Pathfinder.FindPath(GridManager.Instance, unit.currentTile, destination);
 
         unit.currentTile.unit = null;
@@ -37,6 +39,10 @@ public class UnitMovement : Singleton<UnitMovement>
         }
 
         destination.PlaceUnit(unit);
+        MoveRelativeToCursor.SetTileOffsetMultiplier(1, 0.2f);
         isMoving = false;
     }
+
+
+    
 }
