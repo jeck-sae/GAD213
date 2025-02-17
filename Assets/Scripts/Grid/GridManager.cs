@@ -91,21 +91,15 @@ public class GridManager : Singleton<GridManager>
         return list;
     }
 
-    public List<Tile> GetTilesInCross(Vector2Int position, int range) 
+    public List<Tile> GetTilesInCross(Vector2Int position, int range, Func<Tile, bool> stopWhenFalse = null) 
     { 
         List<Tile> list = new List<Tile>();
-        for (int i = -range; i <= range; i++)
-        {
-            var pos = new Vector2Int(position.x + i, position.y);
-            if (Contains(pos))
-                list.Add(Get(pos));
-        }
-        for (int i = -range; i <= range; i++)
-        {
-            var pos = new Vector2Int(position.x, position.y + i);
-            if (Contains(pos))
-                list.Add(Get(pos));
-        }
+
+        list.AddRange(GetTilesInLine(position + Vector2Int.right, Vector2Int.right, range, stopWhenFalse));
+        list.AddRange(GetTilesInLine(position + Vector2Int.down, Vector2Int.down, range, stopWhenFalse));
+        list.AddRange(GetTilesInLine(position + Vector2Int.left, Vector2Int.left, range, stopWhenFalse));
+        list.AddRange(GetTilesInLine(position + Vector2Int.up, Vector2Int.up, range, stopWhenFalse));
+
         return list;
     }
 
@@ -119,6 +113,9 @@ public class GridManager : Singleton<GridManager>
             if (stopWhenFalse != null && stopWhenFalse(tile) == false)
                 break;
 
+            if (tile == null)
+                continue;
+            
             tilesInLine.Add(tile);
         }
         return tilesInLine;

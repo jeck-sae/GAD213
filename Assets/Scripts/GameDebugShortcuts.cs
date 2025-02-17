@@ -11,7 +11,7 @@ public class GameDebugShortcuts : MonoBehaviour
             {
                 var tile = GridManager.Instance.Get(Helpers.Camera.ScreenToWorldPoint(Input.mousePosition));
                 tile.IsWalkable = !tile.IsWalkable;
-                tile.gfx.SetFillColor(Color.black);
+                tile.gfx.SetFillColor(Color.grey);
             }
         }
     }

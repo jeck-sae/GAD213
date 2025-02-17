@@ -27,7 +27,6 @@ public class Unit : MonoBehaviour
     public virtual List<Tile> GetWalkableTiles(Tile center)
     {
         var tiles = Pathfinder.GetReachableTiles(GridManager.Instance, center, movementRange);
-        //var tiles = GridManager.Instance.GetTilesInRange(center.position, movementRange);
         tiles.Remove(center);
         return tiles.Where(x => x.unit == null).ToList();
     }

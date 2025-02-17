@@ -32,7 +32,7 @@ public class GridGenerator : MonoBehaviour
                 if (Random.Range(0, 100) < obstacleChance)
                 {
                     t.GetComponent<Tile>().IsWalkable = false;
-                    t.GetComponent<TileGFX>().SetFillColor(Color.black);
+                    t.GetComponent<TileGFX>().SetFillColor(Color.gray);
                 }
                 t.name = $"Tile {x}, {y}";
             }
