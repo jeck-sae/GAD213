@@ -33,7 +33,7 @@ public class UnitManager : Singleton<UnitManager>
             //Move to tile
             if (SelectedUnit && SelectedUnit.GetWalkableTiles().Contains(tile))
             {
-                UnitMovement.MoveUnit(SelectedUnit, tile);
+                SelectedUnit.Move(tile);
                 return;
             }
 
@@ -54,7 +54,7 @@ public class UnitManager : Singleton<UnitManager>
             //Attack
             if(tile && tile.unit && SelectedUnit && SelectedUnit.GetAttackableTiles().Contains(tile))
             {
-                Destroy(tile.unit.gameObject);
+                SelectedUnit.Attack(tile.unit);
                 return;
             }
 

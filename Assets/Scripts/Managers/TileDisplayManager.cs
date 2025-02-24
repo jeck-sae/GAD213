@@ -34,7 +34,10 @@ public class TileDisplayManager : MonoBehaviour
             return;
 
         selectedTile.gfx.SetOuterBorderColor(SelectedTileColor);
-        PreviewMovementRange(selectedUnit);
+
+        //Get walkable tiles
+        var walkableTiles = (selectedUnit.movesAvailable > 0) ? selectedUnit.GetWalkableTiles() : new();
+        walkableTiles.ForEach(x => x.gfx.SetBorderColor(movementRangeColor));
 
         Tile hovering = null; 
         if(!Helpers.IsOverUI)
@@ -43,14 +46,12 @@ public class TileDisplayManager : MonoBehaviour
         if (!hovering)
         {
             if (selectedTile)
-                PreviewAttack(selectedTile);
+                PreviewAttack(selectedUnit, selectedTile);
             return;
         }
 
-        var walkable = selectedUnit.GetWalkableTiles();
-        
         //Walk preview
-        if (walkable.Contains(hovering))
+        if (walkableTiles.Contains(hovering))
         {
             var path = Pathfinder.FindPath(GridManager.Instance, selectedTile, hovering);
             path.Insert(0, selectedTile);
@@ -60,11 +61,11 @@ public class TileDisplayManager : MonoBehaviour
             hovering.gfx.SetOuterBorderColor(SelectedTileColor);
             hovering.gfx.SetPathDestination();
 
-            PreviewAttack(hovering);
+            PreviewAttack(selectedUnit, hovering);
             return;
         }
 
-        PreviewAttack(selectedTile);
+        PreviewAttack(selectedUnit, selectedTile);
 
         var attackable = selectedUnit.GetAttackableTiles();
         
@@ -96,9 +97,12 @@ public class TileDisplayManager : MonoBehaviour
     }
 
 
-    void PreviewAttack(Tile center)
+    void PreviewAttack(Unit unit, Tile center, bool force = false)
     {
-        var attackRangeTiles = UnitManager.Instance.SelectedUnit.GetAttackableTiles(center);
+        if (unit.attacksAvailable <= 0 && !force)
+            return;
+
+        var attackRangeTiles =  unit.GetAttackableTiles(center);
         attackRangeTiles.ForEach(x => { 
             if(x.unit && x.unit.isEnemy)
                 x.gfx.SetBorderColor(attackRangeColor);
@@ -115,11 +119,5 @@ public class TileDisplayManager : MonoBehaviour
             path[i].gfx.SetPathPreview(previous, next);
             path[i].gfx.SetBorderColor(SelectedTileColor);
         }
-    }
-
-    void PreviewMovementRange(Unit unit)
-    {
-        var tiles = unit.GetWalkableTiles();
-        tiles.ForEach(x => x.gfx.SetBorderColor(movementRangeColor));
     }
 }

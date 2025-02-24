@@ -1,16 +1,18 @@
+using Sirenix.OdinInspector;
+using System;
 using UnityEngine;
 
-public class TurnManager : MonoBehaviour
+public class TurnManager : Singleton<TurnManager>
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    [HideInInspector] public int CurrentTurn => currentTurn;
+    [SerializeField] int currentTurn = 0;
+
+    public Action OnTurnEnd;
+
+    public void EndTurn()
     {
-        
+        currentTurn++;
+        OnTurnEnd?.Invoke();
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }
