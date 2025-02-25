@@ -7,70 +7,112 @@ public class TileDisplayManager : MonoBehaviour
 {
     [SerializeField] Color SelectedTileColor;
     [SerializeField] Color movementRangeColor;
+    [SerializeField] Color movementRangeNoMovesColor;
     [SerializeField] Color confirmHoveringTileColor;
     [SerializeField] Color errorHoveringTileColor;
     [SerializeField] Color attackRangeColor;
+    [SerializeField] Color attackRangeNoAttacksColor;
     [SerializeField] Color enemyTileColor;
     [SerializeField] Color allyTileColor;
 
 
+    private Tile hoveredTileLastFrame;
+    private Tile lastSelectedTile;
+
+    bool forceUpdateTiles;
+
+    bool changedSelectedTile;
+    bool changedHoveringTile;
+    List<Tile> cachedWalkableTiles = new();
+    List<Tile> cachedAttackableTiles = new();
+    List<Tile> cachedPath = new();
+
+    private void OnEnable()
+    {
+        TurnManager.Instance.OnTurnEnd += ForceUpdateTilesNextFrame;
+    }
+    private void OnDisable()
+    {
+        if (TurnManager.Instance)
+            TurnManager.Instance.OnTurnEnd -= ForceUpdateTilesNextFrame;
+    }
+    public void ForceUpdateTilesNextFrame() => forceUpdateTiles = true;
 
     void Update()
     {
-        //clear path preview
+        Unit selectedUnit = UnitManager.Instance.SelectedUnit;
+        changedSelectedTile = lastSelectedTile != selectedUnit?.currentTile;
+        lastSelectedTile = selectedUnit?.currentTile;
+        
+        Tile hovering = Helpers.IsOverUI ? null : GridManager.Instance.Get(Helpers.Camera.ScreenToWorldPoint(Input.mousePosition));
+        changedHoveringTile = hoveredTileLastFrame != hovering;
+        hoveredTileLastFrame = hovering;
+
+        if (!changedSelectedTile && !changedHoveringTile && !forceUpdateTiles)
+            return;
+        forceUpdateTiles = false;
+
+        if (changedSelectedTile && selectedUnit.currentTile)
+            cachedWalkableTiles = selectedUnit.GetWalkableTiles();
+        
         GridManager.Instance.GetAll().ForEach(x => x.Value.gfx.ResetGraphics());
 
         ColorUnits();
 
-        PreviewSelecetdUnit();
+        if(selectedUnit)
+            PreviewSelecetdUnit(selectedUnit, hovering);
+
     }
 
-    void PreviewSelecetdUnit()
+    void PreviewSelecetdUnit(Unit selectedUnit, Tile hovering)
     {
-        Unit selectedUnit = UnitManager.Instance.SelectedUnit;
-        Tile selectedTile = UnitManager.Instance.SelectedTile;
+        Tile selectedTile = selectedUnit?.currentTile;
 
-        if(!selectedUnit || !selectedTile)
+        if (!selectedUnit || !selectedTile)
             return;
 
         selectedTile.gfx.SetOuterBorderColor(SelectedTileColor);
 
-        //Get walkable tiles
-        var walkableTiles = (selectedUnit.movesAvailable > 0) ? selectedUnit.GetWalkableTiles() : new();
-        walkableTiles.ForEach(x => x.gfx.SetBorderColor(movementRangeColor));
+        bool canMove = selectedUnit.movesAvailable > 0;
 
-        Tile hovering = null; 
-        if(!Helpers.IsOverUI)
-            hovering = GridManager.Instance.Get(Helpers.Camera.ScreenToWorldPoint(Input.mousePosition));
+        //Draw walkable tiles
+        cachedWalkableTiles.ForEach(x => x.gfx.SetBorderColor(canMove ? movementRangeColor : movementRangeNoMovesColor));
 
+        //If not hovering a tile, draw attack range around the unit
         if (!hovering)
         {
             if (selectedTile)
-                PreviewAttack(selectedUnit, selectedTile);
+                PreviewAttack(selectedUnit, selectedTile, !changedSelectedTile);
             return;
         }
 
-        //Walk preview
-        if (walkableTiles.Contains(hovering))
+        //Walk and attack preview
+        if (cachedWalkableTiles.Contains(hovering) && canMove)
         {
-            var path = Pathfinder.FindPath(GridManager.Instance, selectedTile, hovering);
-            path.Insert(0, selectedTile);
-            PreviewPath(path);
-            //hovering.gfx.SetFillColor(confirmHoveringTileColor);
+            if(changedHoveringTile || changedSelectedTile)
+            {
+                cachedPath = Pathfinder.FindPath(GridManager.Instance, selectedTile, hovering);
+                cachedPath.Insert(0, selectedTile);
+            }
+
+            PreviewPath(cachedPath);
             hovering.gfx.SetBorderColor(SelectedTileColor);
             hovering.gfx.SetOuterBorderColor(SelectedTileColor);
             hovering.gfx.SetPathDestination();
 
-            PreviewAttack(selectedUnit, hovering);
+            PreviewAttack(selectedUnit, hovering, !changedHoveringTile);
             return;
         }
-
-        PreviewAttack(selectedUnit, selectedTile);
-
-        var attackable = selectedUnit.GetAttackableTiles();
         
+        PreviewAttack(selectedUnit, selectedTile, !changedSelectedTile && !changedHoveringTile);
+
+        //hovering ally unit
+        if (hovering.unit && !hovering.unit.isEnemy && (hovering != selectedTile))
+        {
+            hovering.gfx.SetOuterBorderColor(allyTileColor);
+        }
         //hovering attackable enemy
-        if (hovering.unit && hovering.unit.isEnemy && attackable.Contains(hovering))
+        if (hovering.unit && hovering.unit.isEnemy && cachedAttackableTiles.Contains(hovering))
         {
             hovering.gfx.SetBorderColor(new Color(0, 0, 0, 0));
             hovering.gfx.SetAimingColor(errorHoveringTileColor);
@@ -81,7 +123,6 @@ public class TileDisplayManager : MonoBehaviour
             hovering.gfx.SetFillColor(errorHoveringTileColor);
             hovering.gfx.SetBorderColor(errorHoveringTileColor);
         }
-
     }
 
 
@@ -97,17 +138,21 @@ public class TileDisplayManager : MonoBehaviour
     }
 
 
-    void PreviewAttack(Unit unit, Tile center, bool force = false)
+    void PreviewAttack(Unit unit, Tile center, bool useCache)
     {
-        if (unit.attacksAvailable <= 0 && !force)
-            return;
+        bool canAttack = unit.attacksAvailable > 0;
+        Color color = canAttack ? attackRangeColor : attackRangeNoAttacksColor;
 
-        var attackRangeTiles =  unit.GetAttackableTiles(center);
-        attackRangeTiles.ForEach(x => { 
+        if(!useCache)
+            cachedAttackableTiles = unit.GetAttackableTiles(center);
+
+        cachedAttackableTiles.ForEach(x => { 
             if(x.unit && x.unit.isEnemy)
-                x.gfx.SetBorderColor(attackRangeColor);
-            x.gfx.SetInnerBorderColor(attackRangeColor); });
+                x.gfx.SetBorderColor(color);
+            x.gfx.SetInnerBorderColor(color); });
     }
+
+
 
     void PreviewPath(List<Tile> path)
     {
@@ -117,7 +162,8 @@ public class TileDisplayManager : MonoBehaviour
             Vector2Int next = path[Mathf.Min(i + 1, path.Count - 1)].position - path[i].position;
 
             path[i].gfx.SetPathPreview(previous, next);
-            path[i].gfx.SetBorderColor(SelectedTileColor);
+            if (path[i].unit == null)
+                path[i].gfx.SetBorderColor(SelectedTileColor);
         }
     }
 }

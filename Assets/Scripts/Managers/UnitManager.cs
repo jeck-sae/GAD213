@@ -38,11 +38,11 @@ public class UnitManager : Singleton<UnitManager>
             }
 
             //Deselect unit
-            if (SelectedUnit == tile?.unit)
+            /*if (SelectedUnit == tile?.unit)
             {
                 SelectedUnit = null;
                 return;
-            }
+            }*/
 
             //Select unit
             if (tile && tile.unit && !tile.unit.isEnemy)
