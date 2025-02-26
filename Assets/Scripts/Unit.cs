@@ -59,6 +59,8 @@ public class Unit : MonoBehaviour
         attacksAvailable = attacksPerTurn;
     }
 
+    public bool CanDoAction() => movesAvailable > 0 || attacksAvailable > 0;
+
     public List<Tile> GetWalkableTiles() => GetWalkableTiles(currentTile);
     public virtual List<Tile> GetWalkableTiles(Tile center)
     {

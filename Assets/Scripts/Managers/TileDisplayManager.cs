@@ -8,12 +8,12 @@ public class TileDisplayManager : MonoBehaviour
     [SerializeField] Color SelectedTileColor;
     [SerializeField] Color movementRangeColor;
     [SerializeField] Color movementRangeNoMovesColor;
-    [SerializeField] Color confirmHoveringTileColor;
     [SerializeField] Color errorHoveringTileColor;
     [SerializeField] Color attackRangeColor;
     [SerializeField] Color attackRangeNoAttacksColor;
     [SerializeField] Color enemyTileColor;
     [SerializeField] Color allyTileColor;
+    [SerializeField] Color allyNoMovesColor;
 
 
     private Tile hoveredTileLastFrame;
@@ -52,7 +52,7 @@ public class TileDisplayManager : MonoBehaviour
             return;
         forceUpdateTiles = false;
 
-        if (changedSelectedTile && selectedUnit.currentTile)
+        if (changedSelectedTile && selectedUnit?.currentTile)
             cachedWalkableTiles = selectedUnit.GetWalkableTiles();
         
         GridManager.Instance.GetAll().ForEach(x => x.Value.gfx.ResetGraphics());
@@ -132,8 +132,8 @@ public class TileDisplayManager : MonoBehaviour
         {
             if (unit.isEnemy)
                 unit.currentTile?.gfx.SetBorderColor(enemyTileColor);
-            else 
-                unit.currentTile?.gfx.SetBorderColor(allyTileColor);
+            else
+                unit.currentTile?.gfx.SetBorderColor(unit.CanDoAction() ? allyTileColor : allyNoMovesColor);
         }
     }
 

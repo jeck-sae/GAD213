@@ -11,6 +11,10 @@ public class TurnManager : Singleton<TurnManager>
 
     public void EndTurn()
     {
+        //Enemy turn
+        // ...
+
+        //Player turn
         currentTurn++;
         OnTurnEnd?.Invoke();
     }
