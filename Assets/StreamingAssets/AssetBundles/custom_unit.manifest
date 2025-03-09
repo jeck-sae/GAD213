@@ -1,0 +1,37 @@
+ManifestFileVersion: 0
+UnityVersion: 6000.0.26f1
+CRC: 628742699
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: d17f4414e7555eb6906c2ee05c5870cf
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 8ef0932beb10c7823b29625fbfa02ca0
+  IncrementalBuildHash:
+    serializedVersion: 2
+    Hash: f438ca3f0bb0be01287e8369b4ae44c5
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+- Class: 114
+  Script: {fileID: 11500000, guid: 5babc118eaaa3b849b53c9d44b38d3c5, type: 3}
+- Class: 115
+  Script: {instanceID: 0}
+- Class: 212
+  Script: {instanceID: 0}
+- Class: 213
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/Prefabs/CustomUnit.prefab
+Dependencies: []
